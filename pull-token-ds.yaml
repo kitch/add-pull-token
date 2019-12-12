@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: add-pull-token
+  namespace: ibm-system
+spec:
+  template:
+    metadata:
+      labels:
+        run-once-daemonset: add-pull-token
+    spec:
+      hostPID: true
+      hostIPC: true
+      containers:
+      - name: add-pull-token
+        env:
+        - name: REGISTRY
+          value: "registry.redhat.io"
+        - name: TOKEN
+          value: "<insert-your-pull-token-here>"
+        image: kitch/add-pull-token:0.1
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: docker-config
+          mountPath: /node/.docker
+      securityContext:
+        privileged: true
+      volumes:
+      - name: docker-config
+        hostPath:
+          path: /.docker
+          type: Directory
